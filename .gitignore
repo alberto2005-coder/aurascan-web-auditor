@@ -1,0 +1,19 @@
+# Entorno local de PHP portable
+php-portable/
+
+# Archivos del sistema y del editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Archivos temporales y de logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

@@ -8,13 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.lucide) {
         window.lucide.createIcons();
     }
-    
+
     // Form Binding
     const auditForm = document.getElementById('auditForm');
     if (auditForm) {
         auditForm.addEventListener('submit', handleAuditSubmit);
     }
-    
+
     // Tab Binding
     const tabBtns = document.querySelectorAll('.tab-btn');
     tabBtns.forEach(btn => {
@@ -23,19 +23,19 @@ document.addEventListener('DOMContentLoaded', () => {
             switchTab(target);
         });
     });
-    
+
     // Help modal binding
     const helpToggleBtn = document.getElementById('helpToggleBtn');
     const helpCloseBtn = document.getElementById('helpCloseBtn');
     const helpOverlay = document.getElementById('helpOverlay');
-    
+
     if (helpToggleBtn && helpOverlay) {
         helpToggleBtn.addEventListener('click', () => helpOverlay.classList.add('show'));
     }
     if (helpCloseBtn && helpOverlay) {
         helpCloseBtn.addEventListener('click', () => helpOverlay.classList.remove('show'));
     }
-    
+
     // Help navigation binding
     const helpNavBtns = document.querySelectorAll('.help-nav-btn');
     helpNavBtns.forEach(btn => {
@@ -43,13 +43,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const target = btn.getAttribute('data-target');
             document.querySelectorAll('.help-nav-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.help-section').forEach(s => s.classList.remove('active'));
-            
+
             btn.classList.add('active');
             const targetSec = document.getElementById(target);
             if (targetSec) targetSec.classList.add('active');
         });
     });
-    
+
     // FAQ accordions binding
     const faqQuestions = document.querySelectorAll('.faq-question');
     faqQuestions.forEach(q => {
@@ -57,19 +57,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const item = q.parentElement;
             const answer = item.querySelector('.faq-answer');
             const isActive = item.classList.contains('active');
-            
+
             document.querySelectorAll('.faq-item').forEach(i => {
                 i.classList.remove('active');
                 i.querySelector('.faq-answer').style.maxHeight = null;
             });
-            
+
             if (!isActive) {
                 item.classList.add('active');
                 answer.style.maxHeight = answer.scrollHeight + "px";
             }
         });
     });
-    
+
     // Filter Chips binding
     const chips = document.querySelectorAll('.filter-chips .chip');
     chips.forEach(chip => {
@@ -80,11 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
             renderIssues();
         });
     });
-    
+
     // Export bindings
     const exportPdfBtn = document.getElementById('exportPdfBtn');
     if (exportPdfBtn) exportPdfBtn.addEventListener('click', () => window.print());
-    
+
     const exportJsonBtn = document.getElementById('exportJsonBtn');
     if (exportJsonBtn) exportJsonBtn.addEventListener('click', exportJSON);
 });
@@ -95,63 +95,63 @@ async function handleAuditSubmit(e) {
     const keywordInput = document.getElementById('targetKeyword');
     const loader = document.getElementById('loader');
     const dashboard = document.getElementById('dashboard');
-    
+
     if (!urlInput.value) return;
-    
+
     let targetUrl = urlInput.value.trim();
     if (!/^https?:\/\//i.test(targetUrl)) {
         targetUrl = 'https://' + targetUrl;
     }
     const targetKeyword = keywordInput ? keywordInput.value.trim() : '';
-    
+
     // Reset layout
     dashboard.classList.add('hidden');
     loader.classList.remove('hidden');
-    
+
     const progressFill = document.querySelector('.loader-progress-fill');
     if (progressFill) {
         progressFill.style.animation = 'none';
         void progressFill.offsetWidth;
         progressFill.style.animation = 'loaderProgress 12s linear forwards';
     }
-    
+
     try {
-        // Fetch raw HTML through CORS proxy (AllOrigins JSON endpoint)
         const startTime = performance.now();
+
+        // Sugerencia: Puedes usar otra alternativa de proxy público si AllOrigins falla
         const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-        
+
         const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error('No se pudo conectar al proxy CORS.');
-        
+        if (!response.ok) throw new Error('El proxy CORS no responde o rechazó la conexión.');
+
         const data = await response.json();
         const endTime = performance.now();
         const responseTime = (endTime - startTime) / 1000;
-        
-        if (!data.contents) {
-            throw new Error('El proxy no devolvió ningún contenido para este sitio.');
+
+        if (!data || !data.contents) {
+            throw new Error('El sitio solicitado no permite ser auditado de forma estática o el proxy no devolvió datos.');
         }
-        
+
         const html = data.contents;
         const sizeKb = parseFloat((html.length / 1024).toFixed(1));
-        
-        // Parse DOM using DOMParser
+
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        
-        // Execute Audit
+
         auditData = runClientSideAudit(targetUrl, targetKeyword, doc, html, responseTime, sizeKb);
-        
+
         loader.classList.add('hidden');
         dashboard.classList.remove('hidden');
         renderDashboard();
-        
-        // Asynchronously check first batch of links
+
         checkLinksBatch(0, 15);
-        
+
     } catch (err) {
         console.error(err);
         loader.classList.add('hidden');
-        alert('Ocurrió un error al procesar el análisis: ' + err.message + '\n\nSugerencia: Asegúrese de que la URL existe y es accesible.');
+
+        // Un mensaje más descriptivo orientará mejor al usuario
+        alert(`Error de Auditoría: ${err.message}\n\nNota técnica: Sitios con alta seguridad (como GitHub o Google) suelen bloquear proxies CORS públicos. Intente con un sitio web estándar.`);
     }
 }
 
@@ -161,7 +161,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
     const contentIssues = [];
     const headingIssues = [];
     const linkIssues = [];
-    
+
     // 1. Title Checks
     const titleEl = doc.querySelector('title');
     const title = titleEl ? titleEl.textContent.trim() : '';
@@ -180,7 +180,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
             solution: 'Refina el título para que sea conciso pero informativo.'
         });
     }
-    
+
     // 2. Meta Description Checks
     const descEl = doc.querySelector('meta[name="description"]');
     const description = descEl ? descEl.getAttribute('content').trim() : '';
@@ -199,7 +199,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
             solution: 'Ajuste la longitud para asegurar una correcta visualización en Google (SERPs).'
         });
     }
-    
+
     // 3. Viewport tag
     const viewport = doc.querySelector('meta[name="viewport"]');
     if (!viewport) {
@@ -210,7 +210,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
             solution: 'Añada <meta name="viewport" content="width=device-width, initial-scale=1.0"> en su cabecera.'
         });
     }
-    
+
     // 4. Canonical
     const canonical = doc.querySelector('link[rel="canonical"]');
     if (!canonical) {
@@ -221,7 +221,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
             solution: 'Añada <link rel="canonical" href="https://ejemplo.com/"> para evitar contenido duplicado.'
         });
     }
-    
+
     // 5. HTML lang attribute
     const htmlTag = doc.querySelector('html');
     const lang = htmlTag ? htmlTag.getAttribute('lang') : '';
@@ -233,7 +233,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
             solution: 'Añada un lenguaje por defecto, por ejemplo: <html lang="es">.'
         });
     }
-    
+
     // 6. Robots noindex
     const robots = doc.querySelector('meta[name="robots"]');
     const robotsVal = robots ? robots.getAttribute('content').toLowerCase() : '';
@@ -245,7 +245,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
             solution: 'Elimine la directiva "noindex" para que los buscadores puedan indexar su web.'
         });
     }
-    
+
     // 7. Social tags
     const ogTitle = doc.querySelector('meta[property="og:title"]');
     const ogImage = doc.querySelector('meta[property="og:image"]');
@@ -257,7 +257,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
             solution: 'Incorpore etiquetas Open Graph para optimizar la apariencia al compartir en redes sociales.'
         });
     }
-    
+
     // 8. Headings (H1-H6)
     const headingEls = doc.querySelectorAll('h1, h2, h3, h4, h5, h6');
     const headings = [];
@@ -268,7 +268,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
         headings.push({ level, text });
         if (level === 1) h1Count++;
     });
-    
+
     if (headings.length === 0) {
         headingIssues.push({
             severity: 'critical',
@@ -292,7 +292,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
                 solution: 'Combine los H1 secundarios o conviértalos a H2.'
             });
         }
-        
+
         let prevLevel = 0;
         headings.forEach(h => {
             if (!h.text) {
@@ -314,26 +314,26 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
             prevLevel = h.level;
         });
     }
-    
+
     // 9. Text & content checks
     // Remove scripts, styles, metadata elements to get clean text
     const cleanDoc = doc.cloneNode(true);
     cleanDoc.querySelectorAll('script, style, noscript, header, footer, iframe, nav').forEach(el => el.remove());
     const bodyText = cleanDoc.body ? cleanDoc.body.textContent.replace(/\s+/g, ' ').trim() : '';
-    
+
     const words = bodyText.split(' ').filter(w => w.length > 1);
     const wordCount = words.length;
     const readingTime = Math.ceil(wordCount / 200);
-    
+
     const sentences = bodyText.split(/[.!?]+/).filter(s => s.trim().length > 5);
     const avgSentenceLength = parseFloat((wordCount / Math.max(1, sentences.length)).toFixed(1));
-    
+
     const placeholders = ['lorem', 'ipsum', 'placeholder', 'texto de prueba', 'relleno', 'dummy text'];
     const foundPlaceholders = [];
     placeholders.forEach(ph => {
         if (bodyText.toLowerCase().includes(ph)) foundPlaceholders.push(ph);
     });
-    
+
     if (wordCount < 300) {
         contentIssues.push({
             severity: 'warning',
@@ -350,7 +350,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
             solution: 'Reemplace el texto de relleno por descripciones reales.'
         });
     }
-    
+
     // Keyword Analysis
     let keywordAnalysis = null;
     if (keyword) {
@@ -358,11 +358,11 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
         const kwInTitle = title.toLowerCase().includes(kwLower);
         const kwInDesc = description.toLowerCase().includes(kwLower);
         const kwInH1 = headings.some(h => h.level === 1 && h.text.toLowerCase().includes(kwLower));
-        
+
         const matches = bodyText.toLowerCase().match(new RegExp('\\b' + kwLower + '\\b', 'g'));
         const occurrences = matches ? matches.length : 0;
         const density = parseFloat(((occurrences / Math.max(1, wordCount)) * 100).toFixed(2));
-        
+
         keywordAnalysis = {
             keyword,
             in_title: kwInTitle,
@@ -372,7 +372,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
             density_pct: density
         };
     }
-    
+
     // 10. Images checking
     const images = doc.querySelectorAll('img');
     const totalImages = images.length;
@@ -388,13 +388,13 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
                 try {
                     const resolved = new URL(src, url).href;
                     missingAltImagesList.push(resolved);
-                } catch(e) {
+                } catch (e) {
                     missingAltImagesList.push(src);
                 }
             }
         }
     });
-    
+
     if (missingAlts > 0) {
         seoIssues.push({
             severity: 'warning',
@@ -403,39 +403,39 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
             solution: 'Añada textos descriptivos alt a sus imágenes para buscadores y accesibilidad.'
         });
     }
-    
+
     // 11. Links Extraction
     const linkElements = doc.querySelectorAll('a[href]');
     const linksFound = [];
     const linkTexts = {};
     const parsedTarget = new URL(url);
     const internalLinks = [];
-    
+
     linkElements.forEach(a => {
         let href = a.getAttribute('href').trim();
         if (!href || /^(#|mailto:|tel:|javascript:)/i.test(href)) return;
-        
+
         try {
             const resolvedUrl = new URL(href, url).href;
             linksFound.push(resolvedUrl);
-            
+
             const text = a.textContent.trim() || '[Sin texto]';
             if (!linkTexts[resolvedUrl]) linkTexts[resolvedUrl] = [];
             linkTexts[resolvedUrl].push(text);
-            
+
             // Check if internal
             if (new URL(resolvedUrl).hostname === parsedTarget.hostname) {
                 internalLinks.push(resolvedUrl);
             }
-        } catch(e) {}
+        } catch (e) { }
     });
-    
+
     const uniqueLinks = [...new Set(linksFound)];
     const uniqueInternalLinks = [...new Set(internalLinks)];
-    
+
     // 12. Security
     const ssl = url.startsWith('https://');
-    
+
     // Mixed content
     let mixedContent = false;
     if (ssl) {
@@ -449,7 +449,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
             solution: 'Asegúrese de cargar todas las imágenes y scripts usando HTTPS.'
         });
     }
-    
+
     // Security Score Mock based on basic checklist
     const hasHeadersMock = {
         'strict-transport-security': html.includes('strict-transport-security') || ssl,
@@ -459,7 +459,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
         'referrer-policy': html.includes('referrer-policy'),
         'permissions-policy': html.includes('permissions-policy')
     };
-    
+
     let secScore = 0;
     const secHeadersList = {
         'strict-transport-security': { label: 'HSTS (Strict-Transport-Security)', present: hasHeadersMock['strict-transport-security'], value: hasHeadersMock['strict-transport-security'] ? 'max-age=31536000' : null, tip: 'Fuerza conexiones seguras por HTTPS.' },
@@ -467,15 +467,15 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
         'x-frame-options': { label: 'X-Frame-Options', present: hasHeadersMock['x-frame-options'], value: hasHeadersMock['x-frame-options'] ? 'SAMEORIGIN' : null, tip: 'Protección contra Clickjacking.' },
         'x-content-type-options': { label: 'X-Content-Type-Options', present: hasHeadersMock['x-content-type-options'], value: hasHeadersMock['x-content-type-options'] ? 'nosniff' : null, tip: 'Evita MIME-sniffing de archivos.' }
     };
-    
+
     Object.keys(secHeadersList).forEach(k => {
         if (secHeadersList[k].present) secScore += 25;
     });
-    
+
     // 13. Technology Stack Identification
     const technologies = [];
     const techText = html.toLowerCase();
-    
+
     const cmsSigs = {
         'WordPress': ['/wp-content/', '/wp-includes/'],
         'Shopify': ['cdn.shopify.com', 'shopify.theme'],
@@ -483,7 +483,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
         'Squarespace': ['squarespace.oninitialize'],
         'Webflow': ['data-wf-page']
     };
-    
+
     const jsSigs = {
         'React': ['react.development.js', 'react.production', 'react-dom'],
         'Vue.js': ['vue.js', 'vue.min.js', 'v-bind'],
@@ -492,24 +492,24 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
         'Bootstrap': ['bootstrap.min.css', 'bootstrap.css'],
         'Tailwind': ['tailwindcss']
     };
-    
+
     Object.keys(cmsSigs).forEach(name => {
         if (cmsSigs[name].some(sig => techText.includes(sig))) {
             technologies.push({ name, type: 'CMS', icon: 'layers' });
         }
     });
-    
+
     Object.keys(jsSigs).forEach(name => {
         if (jsSigs[name].some(sig => techText.includes(sig))) {
             technologies.push({ name, type: 'Framework JS', icon: 'code' });
         }
     });
-    
+
     // Serving CDN check
     if (techText.includes('cloudflare')) {
         technologies.push({ name: 'Cloudflare', type: 'CDN / WAF', icon: 'shield' });
     }
-    
+
     // Third party scripts
     const thirdPartyDomains = {
         'Google Analytics': ['google-analytics.com', 'googletagmanager.com'],
@@ -517,14 +517,14 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
         'Hotjar': ['hotjar.com'],
         'Stripe': ['js.stripe.com']
     };
-    
+
     const thirdParty = [];
     Object.keys(thirdPartyDomains).forEach(name => {
         if (thirdPartyDomains[name].some(sig => techText.includes(sig))) {
             thirdParty.push({ name, blocking: !techText.includes(name.toLowerCase() + ' async') });
         }
     });
-    
+
     // 14. Core Web Vitals estimates
     const blockingScripts = doc.querySelectorAll('head script:not([defer]):not([async])');
     const nonSizedImages = [];
@@ -533,7 +533,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
             nonSizedImages.push(img.getAttribute('src') || 'image');
         }
     });
-    
+
     const cwv = {
         lcp_largest_img: images.length > 0 ? images[0].getAttribute('src') : null,
         lcp_lazy_loaded: images.length > 0 ? (images[0].getAttribute('loading') === 'lazy') : false,
@@ -542,32 +542,32 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
         blocking_scripts: Array.from(blockingScripts).map(s => s.getAttribute('src') || 'inline'),
         total_scripts: doc.querySelectorAll('script').length
     };
-    
+
     // 15. Mobile Friendliness
     const mobileIssues = [];
     if (!viewport) mobileIssues.push({ severity: 'critical', message: 'Falta la etiqueta meta viewport.' });
     if (nonSizedImages.length > 5) mobileIssues.push({ severity: 'warning', message: 'Varias imágenes carecen de dimensiones fijas y pueden deformar la visualización.' });
-    
+
     // Calculate final scores
     let seoScore = 100 - (seoIssues.filter(i => i.severity === 'critical').length * 15) - (seoIssues.filter(i => i.severity === 'warning').length * 8);
     seoScore = Math.max(10, Math.min(100, seoScore));
-    
+
     let accessScore = 100 - (headingIssues.filter(i => i.severity === 'critical').length * 15) - (headingIssues.filter(i => i.severity === 'warning').length * 8);
     accessScore = Math.max(10, Math.min(100, accessScore));
-    
+
     let contentScore = 100 - (contentIssues.filter(i => i.severity === 'critical').length * 15) - (contentIssues.filter(i => i.severity === 'warning').length * 8);
     contentScore = Math.max(10, Math.min(100, contentScore));
-    
+
     let perfScore = 100 - (cwv.blocking_scripts.length * 10) - (cwv.cls_risk_images * 4);
     perfScore = Math.max(10, Math.min(100, perfScore));
-    
+
     const score = Math.round((seoScore * 0.35) + (accessScore * 0.25) + (contentScore * 0.20) + (perfScore * 0.20));
-    
+
     const allIssues = [...seoIssues, ...headingIssues, ...contentIssues];
-    
-    const faviconElement = doc.querySelector('link[contains(@rel, "icon")]');
+
+    const faviconElement = doc.querySelector('link[rel*="icon"]');
     const faviconUrl = faviconElement ? faviconElement.getAttribute('href') : '';
-    
+
     return {
         url,
         ssl,
@@ -638,25 +638,25 @@ async function checkLinksBatch(offset, limit) {
     if (!auditData) return;
     const sum = auditData.links_summary;
     const allLinks = sum.all_links_list || [];
-    
+
     const batch = allLinks.slice(offset, offset + limit);
     if (batch.length === 0) return;
-    
+
     const loadMoreWrapper = document.getElementById('loadMoreWrapper');
     if (loadMoreWrapper) {
         loadMoreWrapper.innerHTML = '<span style="font-size:0.8rem;color:var(--text-muted);">Comprobando enlaces...</span>';
     }
-    
+
     const promises = batch.map(async (linkUrl) => {
         try {
             // Check status code via a lightweight check (using allorigins JSON endpoint to fetch meta)
             const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(linkUrl)}`;
             const controller = new AbortController();
             const id = setTimeout(() => controller.abort(), 6000);
-            
+
             const response = await fetch(proxyUrl, { signal: controller.signal });
             clearTimeout(id);
-            
+
             const broken = !response.ok;
             return {
                 url: linkUrl,
@@ -673,34 +673,34 @@ async function checkLinksBatch(offset, limit) {
             };
         }
     });
-    
+
     const results = await Promise.all(promises);
-    
+
     // Append to list
     sum.tested_details = [...sum.tested_details, ...results];
     sum.tested_count = sum.tested_details.length;
     sum.broken_count = sum.tested_details.filter(l => l.broken).length;
     sum.next_offset = offset + limit;
     sum.has_more = sum.next_offset < allLinks.length;
-    
+
     renderLinksTab();
 }
 
 function renderDashboard() {
     if (!auditData) return;
-    
+
     // Core Score Gauge
     const scoreVal = document.getElementById('scoreGauge');
     const scoreText = document.getElementById('scoreText');
     const scoreLabel = document.getElementById('scoreLabel');
-    
+
     const score = auditData.seo_score || 0;
     scoreText.textContent = score;
-    
+
     const strokeDash = 251.2;
     const offset = strokeDash - (score / 100) * strokeDash;
     scoreVal.style.strokeDashoffset = offset;
-    
+
     let statusClass = 'critical';
     let statusText = 'Requiere Mejoras';
     if (score >= 90) {
@@ -718,15 +718,15 @@ function renderDashboard() {
     } else {
         scoreVal.style.stroke = '#ef4444';
     }
-    
+
     scoreLabel.textContent = statusText;
     scoreLabel.className = 'score-label ' + statusClass;
-    
+
     // Overview widget values
     const currentUrl = document.getElementById('currentUrl');
     currentUrl.textContent = auditData.url;
     currentUrl.href = auditData.url;
-    
+
     const sslIcon = document.getElementById('sslIcon');
     const sslValue = document.getElementById('sslValue');
     if (auditData.ssl) {
@@ -738,7 +738,7 @@ function renderDashboard() {
         sslIcon.innerHTML = '<i data-lucide="lock-open"></i>';
         sslValue.textContent = 'Inseguro (HTTP)';
     }
-    
+
     const speedIcon = document.getElementById('speedIcon');
     const responseTimeValue = document.getElementById('responseTimeValue');
     const respTime = auditData.metadata.response_time_seconds || 0;
@@ -748,32 +748,32 @@ function renderDashboard() {
     } else {
         speedIcon.className = 'q-icon load-slow';
     }
-    
+
     const pageSizeValue = document.getElementById('pageSizeValue');
     pageSizeValue.textContent = (auditData.metadata.page_size_kb || 0) + ' KB';
-    
+
     // Meta descriptors
     document.getElementById('metaTitle').textContent = auditData.metadata.title || '[Falta el Título]';
     document.getElementById('metaDesc').textContent = auditData.metadata.description || '[Falta la Meta Descripción]';
-    
+
     // Sub-scores bars
     const subScores = auditData.sub_scores || {};
     const seoVal = subScores.seo || 0;
     document.getElementById('seoScoreText').textContent = seoVal + '%';
     document.getElementById('seoScoreBar').style.width = seoVal + '%';
-    
+
     const accessVal = subScores.accessibility || 0;
     document.getElementById('accessScoreText').textContent = accessVal + '%';
     document.getElementById('accessScoreBar').style.width = accessVal + '%';
-    
+
     const contentVal = subScores.content || 0;
     document.getElementById('contentScoreText').textContent = contentVal + '%';
     document.getElementById('contentScoreBar').style.width = contentVal + '%';
-    
+
     const perfVal = subScores.performance || 0;
     document.getElementById('perfScoreText').textContent = perfVal + '%';
     document.getElementById('perfScoreBar').style.width = perfVal + '%';
-    
+
     // Tabs Renderers
     renderIssues();
     renderHeadings();
@@ -783,7 +783,7 @@ function renderDashboard() {
     renderCWVTab();
     renderLinksTab();
     renderInternalLinks();
-    
+
     if (window.lucide) {
         window.lucide.createIcons();
     }
@@ -793,13 +793,13 @@ function renderInternalLinks() {
     const list = document.getElementById('internalLinksList');
     if (!list) return;
     list.innerHTML = '';
-    
+
     const links = auditData.internal_links || [];
     if (links.length === 0) {
         list.innerHTML = '<span style="font-size:0.8rem;color:var(--text-muted);">No se detectaron enlaces internos.</span>';
         return;
     }
-    
+
     links.forEach(url => {
         const item = document.createElement('a');
         item.href = '#';
@@ -823,9 +823,9 @@ function renderIssues() {
     const list = document.getElementById('issuesList');
     const issueCount = document.getElementById('issueCount');
     if (!list) return;
-    
+
     let issues = auditData.issues || [];
-    
+
     // Merge security issues
     if (auditData.security && auditData.security.issues) {
         const secIssues = auditData.security.issues.map(i => ({
@@ -836,29 +836,29 @@ function renderIssues() {
         }));
         issues = [...issues, ...secIssues];
     }
-    
+
     // Filter issues
     let filtered = issues;
     if (activeFilter !== 'all') {
         filtered = issues.filter(i => i.severity === activeFilter);
     }
-    
+
     issueCount.textContent = filtered.length;
     list.innerHTML = '';
-    
+
     if (filtered.length === 0) {
         list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);">No se encontraron problemas bajo este filtro.</div>';
         return;
     }
-    
+
     filtered.forEach(issue => {
         const card = document.createElement('div');
         card.className = `issue-card ${issue.severity}`;
-        
+
         let iconName = 'alert-circle';
         if (issue.severity === 'critical') iconName = 'shield-alert';
         else if (issue.severity === 'warning') iconName = 'alert-triangle';
-        
+
         card.innerHTML = `
             <div class="issue-badge">
                 <i data-lucide="${iconName}"></i>
@@ -871,7 +871,7 @@ function renderIssues() {
         `;
         list.appendChild(card);
     });
-    
+
     if (window.lucide) window.lucide.createIcons();
 }
 
@@ -879,13 +879,13 @@ function renderHeadings() {
     const tree = document.getElementById('headingsTree');
     if (!tree) return;
     tree.innerHTML = '';
-    
+
     const list = auditData.headings || [];
     if (list.length === 0) {
         tree.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem;">No se detectaron encabezados (H1-H6).</div>';
         return;
     }
-    
+
     list.forEach(h => {
         const node = document.createElement('div');
         node.className = `tree-node h${h.level}`;
@@ -902,7 +902,7 @@ function renderContentTab() {
     document.getElementById('textWordCount').textContent = stats.word_count || 0;
     document.getElementById('textReadTime').textContent = (stats.reading_time_minutes || 0) + ' Min';
     document.getElementById('textAvgSentence').textContent = (stats.avg_sentence_length || 0);
-    
+
     const alertBox = document.getElementById('placeholderAlertBox');
     const placeholders = stats.placeholders_detected || [];
     if (placeholders.length > 0) {
@@ -914,7 +914,7 @@ function renderContentTab() {
     } else {
         alertBox.innerHTML = '';
     }
-    
+
     const kwBox = document.getElementById('keywordAnalysisBox');
     const kw = auditData.keyword_analysis;
     if (kw) {
@@ -931,7 +931,7 @@ function renderContentTab() {
     } else {
         kwBox.classList.add('hidden');
     }
-    
+
     // Render Schemas list
     const schemaList = document.getElementById('schemaDetailsList');
     if (schemaList) {
@@ -963,12 +963,12 @@ function renderSecurityTab() {
     const sec = auditData.security;
     const loader = document.getElementById('securityLoader');
     const content = document.getElementById('securityContent');
-    
+
     if (!sec) return;
-    
+
     if (loader) loader.classList.add('hidden');
     if (content) content.classList.remove('hidden');
-    
+
     const secScoreArc = document.getElementById('secScoreArc');
     const secScoreNum = document.getElementById('secScoreNum');
     if (secScoreArc && secScoreNum) {
@@ -977,7 +977,7 @@ function renderSecurityTab() {
         const arcCircum = 238.76;
         secScoreArc.style.strokeDashoffset = arcCircum - (s / 100) * arcCircum;
     }
-    
+
     const httpsText = document.getElementById('httpsText');
     const httpsIcon = document.getElementById('httpsIcon');
     if (sec.https_ok) {
@@ -987,7 +987,7 @@ function renderSecurityTab() {
         httpsText.textContent = 'HTTP Inseguro';
         httpsIcon.textContent = '🔓';
     }
-    
+
     const headersList = document.getElementById('secHeadersList');
     if (headersList) {
         headersList.innerHTML = '';
@@ -1004,7 +1004,7 @@ function renderSecurityTab() {
             row.style.background = 'rgba(255,255,255,0.02)';
             row.style.border = '1px solid var(--border-color)';
             row.style.borderLeft = h.present ? '3px solid var(--success)' : '3px solid var(--critical)';
-            
+
             row.innerHTML = `
                 <div style="font-size:0.86rem;font-weight:600;">
                     ${h.label}
@@ -1021,12 +1021,12 @@ function renderTechTab() {
     const tech = auditData.tech;
     const loader = document.getElementById('techLoader');
     const content = document.getElementById('techContent');
-    
+
     if (!tech) return;
-    
+
     if (loader) loader.classList.add('hidden');
     if (content) content.classList.remove('hidden');
-    
+
     const list = document.getElementById('techList');
     if (list) {
         list.innerHTML = '';
@@ -1045,14 +1045,14 @@ function renderTechTab() {
             });
         }
     }
-    
+
     const thirdList = document.getElementById('thirdPartyList');
     const blockingCount = document.getElementById('blockingCount');
     if (thirdList) {
         thirdList.innerHTML = '';
         const third = tech.third_party || [];
         blockingCount.textContent = third.length + ' scripts detectados';
-        
+
         if (third.length === 0) {
             thirdList.innerHTML = '<span style="font-size:0.85rem;color:var(--text-muted);">No se detectaron trackers ni scripts de terceros.</span>';
         } else {
@@ -1067,7 +1067,7 @@ function renderTechTab() {
                 row.style.border = '1px solid rgba(255,255,255,0.03)';
                 row.style.marginBottom = '0.35rem';
                 row.style.fontSize = '0.84rem';
-                
+
                 row.innerHTML = `
                     <span>${s.name}</span>
                     <span class="badge ${s.blocking ? 'orange' : 'green'}">${s.blocking ? 'Bloqueante' : 'Diferido'}</span>
@@ -1076,7 +1076,7 @@ function renderTechTab() {
             });
         }
     }
-    
+
     if (window.lucide) window.lucide.createIcons();
 }
 
@@ -1084,14 +1084,14 @@ function renderCWVTab() {
     const tech = auditData.tech;
     const loader = document.getElementById('cwvLoader');
     const content = document.getElementById('cwvContent');
-    
+
     if (!tech) return;
-    
+
     if (loader) loader.classList.add('hidden');
     if (content) content.classList.remove('hidden');
-    
+
     const cwv = tech.cwv || {};
-    
+
     // LCP
     const lcpVal = document.getElementById('lcpVal');
     const lcpDesc = document.getElementById('lcpDesc');
@@ -1104,7 +1104,7 @@ function renderCWVTab() {
         lcpVal.className = 'cwv-metric-val good';
         lcpDesc.textContent = 'Sin imágenes pesadas en el primer renderizado.';
     }
-    
+
     // CLS
     const clsVal = document.getElementById('clsVal');
     const clsDesc = document.getElementById('clsDesc');
@@ -1112,7 +1112,7 @@ function renderCWVTab() {
     clsVal.textContent = riskCount > 0 ? (riskCount > 3 ? 'Crítico' : 'Medio') : 'Ninguno';
     clsVal.className = 'cwv-metric-val ' + (riskCount > 3 ? 'bad' : (riskCount > 0 ? 'warning' : 'good'));
     clsDesc.textContent = `${riskCount} imagen(es) sin ancho o alto explícitos en HTML.`;
-    
+
     // FID
     const fidVal = document.getElementById('fidVal');
     const fidDesc = document.getElementById('fidDesc');
@@ -1120,7 +1120,7 @@ function renderCWVTab() {
     fidVal.textContent = blocking.length > 0 ? 'Medio' : 'Excelente';
     fidVal.className = 'cwv-metric-val ' + (blocking.length > 0 ? 'warning' : 'good');
     fidDesc.textContent = `${blocking.length} scripts bloqueantes en head.`;
-    
+
     // Mobile Friendliness
     const mobList = document.getElementById('mobileIssuesList');
     if (mobList) {
@@ -1148,11 +1148,11 @@ function renderLinksTab() {
     const sum = auditData.links_summary || {};
     document.getElementById('linksChecked').textContent = sum.tested_count || 0;
     document.getElementById('totalLinksFound').textContent = sum.total_found || 0;
-    
+
     const integrityBadge = document.getElementById('linkIntegrityBadge');
     integrityBadge.textContent = (sum.broken_count || 0) + ' Rotos';
     integrityBadge.className = 'badge ' + (sum.broken_count > 0 ? 'red' : 'green');
-    
+
     const tableBody = document.querySelector('#linksTable tbody');
     if (tableBody) {
         tableBody.innerHTML = '';
@@ -1168,7 +1168,7 @@ function renderLinksTab() {
             tableBody.appendChild(tr);
         });
     }
-    
+
     // Missing alt list
     const missingAltBody = document.querySelector('#missingAltTable tbody');
     const missingAltBox = document.getElementById('missingAltImagesList');
@@ -1186,7 +1186,7 @@ function renderLinksTab() {
             missingAltBox.classList.add('hidden');
         }
     }
-    
+
     // Load more pagination button
     const loadMoreWrapper = document.getElementById('loadMoreWrapper');
     if (loadMoreWrapper) {
@@ -1209,11 +1209,11 @@ function switchTab(tabId) {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
     });
-    
+
     document.querySelectorAll('.tab-pane').forEach(pane => {
         pane.classList.toggle('active', pane.getAttribute('id') === tabId);
     });
-    
+
     currentTab = tabId;
 }
 

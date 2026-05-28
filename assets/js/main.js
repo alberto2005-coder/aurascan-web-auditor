@@ -15,6 +15,30 @@ document.addEventListener('DOMContentLoaded', () => {
         auditForm.addEventListener('submit', handleAuditSubmit);
     }
 
+    // Theme Toggle binding
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    if (themeToggleBtn) {
+        const savedTheme = localStorage.getItem('aurascan-theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeToggleBtn.innerHTML = '<i data-lucide="moon"></i>';
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            if (isLight) {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('aurascan-theme', 'dark');
+                themeToggleBtn.innerHTML = '<i data-lucide="sun"></i>';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('aurascan-theme', 'light');
+                themeToggleBtn.innerHTML = '<i data-lucide="moon"></i>';
+            }
+            if (window.lucide) window.lucide.createIcons();
+        });
+    }
+
     // Tab Binding
     const tabBtns = document.querySelectorAll('.tab-btn');
     tabBtns.forEach(btn => {

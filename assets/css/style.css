@@ -1245,6 +1245,100 @@ body {
         height: auto;
         flex-direction: row;
         overflow-x: auto;
-        white-space: nowrap;
     }
+}
+
+/* Light Theme Variables & Overrides */
+[data-theme="light"] {
+    --bg-primary: #f0f4f8;
+    --bg-surface: rgba(255, 255, 255, 0.85);
+    --bg-surface-hover: rgba(255, 255, 255, 1);
+    --border-color: rgba(0, 0, 0, 0.1);
+    --border-color-glow: rgba(139, 92, 246, 0.3);
+    --accent-primary: #7c3aed;
+    --accent-secondary: #0891b2;
+    --accent-glow: radial-gradient(circle, rgba(139,92,246,0.1) 0%, rgba(6,182,212,0.05) 50%, transparent 100%);
+    --success: #059669;
+    --warning: #d97706;
+    --critical: #dc2626;
+    --info: #2563eb;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+}
+
+[data-theme="light"] body {
+    background-image: radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 40%),
+                      radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.05) 0%, transparent 40%);
+}
+
+[data-theme="light"] .glass-card {
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+}
+[data-theme="light"] .search-form input {
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
+}
+[data-theme="light"] .theme-toggle-btn,
+[data-theme="light"] .btn-secondary,
+[data-theme="light"] .q-icon,
+[data-theme="light"] .chip,
+[data-theme="light"] .issue-card,
+[data-theme="light"] .tree-node,
+[data-theme="light"] .content-metric-card,
+[data-theme="light"] .mini-status-card,
+[data-theme="light"] .help-nav-btn {
+    background: rgba(0, 0, 0, 0.03);
+}
+[data-theme="light"] .theme-toggle-btn:hover,
+[data-theme="light"] .btn-secondary:hover,
+[data-theme="light"] .chip:hover,
+[data-theme="light"] .help-nav-btn:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .score-label {
+    background: rgba(0, 0, 0, 0.04);
+}
+[data-theme="light"] .target-link,
+[data-theme="light"] .filter-bar,
+[data-theme="light"] .headings-tree-container,
+[data-theme="light"] .help-section-card,
+[data-theme="light"] .faq-answer {
+    background: rgba(0, 0, 0, 0.05);
+}
+[data-theme="light"] .meta-field p,
+[data-theme="light"] .issue-solution {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(0, 0, 0, 0.05);
+}
+[data-theme="light"] .tab-navigation {
+    background: rgba(0, 0, 0, 0.03);
+}
+[data-theme="light"] .tab-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+[data-theme="light"] .tab-btn.active {
+    background: var(--accent-primary);
+    color: #fff;
+}
+[data-theme="light"] .issue-solution code {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--accent-primary);
+}
+[data-theme="light"] .sub-score-bar-bg,
+[data-theme="light"] .loader-progress-bar,
+[data-theme="light"] .cwv-card {
+    background: rgba(0, 0, 0, 0.04);
+}
+[data-theme="light"] .gauge-bg {
+    stroke: rgba(0, 0, 0, 0.05);
+}
+[data-theme="light"] ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.6);
 }

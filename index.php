@@ -33,7 +33,10 @@
                     <p>Web Auditing Suite</p>
                 </div>
             </div>
-            <div class="header-actions">
+            <div class="header-actions" style="display: flex; gap: 0.5rem;">
+                <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Cambiar Tema" title="Alternar Modo Oscuro/Claro">
+                    <i data-lucide="sun"></i>
+                </button>
                 <button id="helpToggleBtn" class="theme-toggle-btn" aria-label="Ayuda" title="Guía y FAQ">
                     <i data-lucide="help-circle"></i>
                 </button>

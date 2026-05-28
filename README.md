@@ -1,5 +1,4 @@
-# 🚀 AuraScan: Web Audit Engine (Static Version)
-
+# 🚀 AuraScan: Web Audit Engine 
 **AuraScan** es una herramienta de auditoría técnica avanzada, rápida y ligera diseñada para evaluar instantáneamente la salud técnica y SEO de cualquier sitio web en tiempo real.
 
 Esta es la **versión 100% estática** de la aplicación, ejecutada íntegramente en el navegador del cliente. No requiere base de datos, PHP, servidores backend ni dependencias externas pesadas. Es ideal para ser subida y desplegada de forma gratuita en **GitHub Pages**, Vercel, Netlify o cualquier otro hosting de archivos estáticos.

@@ -1,49 +1,110 @@
-# 🚀 AuraScan: Web Audit Engine 
-**AuraScan** es una herramienta de auditoría técnica avanzada, rápida y ligera diseñada para evaluar instantáneamente la salud técnica y SEO de cualquier sitio web en tiempo real.
+# 🚀 AuraScan: Web Audit Engine
+**AuraScan** es una suite de auditoría técnica web que combina una interfaz de cliente moderna con una pequeña API backend en PHP para permitir análisis SEO, seguridad, enlaces, subdominios y puertos.
 
-Esta es la **versión 100% estática** de la aplicación, ejecutada íntegramente en el navegador del cliente. No requiere base de datos, PHP, servidores backend ni dependencias externas pesadas. Es ideal para ser subida y desplegada de forma gratuita en **GitHub Pages**, Vercel, Netlify o cualquier otro hosting de archivos estáticos.
-
----
-
-## 📑 Características Principales
-
-* **Auditoría SEO On-Page:** Análisis de etiquetas meta, encabezados (H1-H6), densidad de contenido, alt en imágenes y legibilidad.
-* **Escáner de Seguridad HTTP:** Verificación de protocolo SSL/HTTPS y estimación de cabeceras de seguridad activas.
-* **Detección de Stack Tecnológico:** Identificación de CMS, frameworks JavaScript, CDNs y scripts de terceros.
-* **Core Web Vitals Heurísticos:** Estimaciones de velocidad (LCP, CLS, FID) y adaptabilidad móvil.
-* **Inspección de Enlaces:** Verificación en paralelo de la integridad de los enlaces usando proxies CORS en Javascript.
-* **Exportación de Datos:** Descarga de reportes en JSON y reportes listos para imprimir en PDF.
+> Esta aplicación usa HTML/CSS/JS en el frontend y requiere el backend PHP disponible en `api/` para la extracción de contenido remoto y los escaneos de red.
 
 ---
 
-## 💻 Arquitectura y Estructura de Carpetas
+## 📌 Qué hace AuraScan
 
-La aplicación está organizada de la siguiente manera:
+* Auditoría SEO técnica de páginas web.
+* Revisión de encabezados (`H1`-`H6`), metadatos y etiquetas Open Graph.
+* Análisis heurístico de Core Web Vitals y rendimiento percibido.
+* Inspección de seguridad HTTP y soporte SSL.
+* Detección de tecnologías visibles en la página.
+* Verificación de enlaces e imágenes con comprobación de estado.
+* Escaneo de subdominios comunes con verificación de respuesta.
+* Escaneo de puertos básicos del host objetivo.
+* Exportación de resultados a JSON, Markdown, PDF, sitemap y robots.txt.
+
+---
+
+## 📂 Estructura del proyecto
 
 ```text
-├── index.html          # Interfaz principal (HTML) y modal de ayuda integrado
-└── assets/
-    ├── css/
-    │   └── style.css   # Estilos premium con tema oscuro y glassmorphism
-    └── js/
-        └── main.js     # Lógica de scraping y análisis en el cliente
+├── index.php                 # Punto de entrada del frontend
+├── LICENSE                  # Licencia personalizada del proyecto
+├── README.md                # Documentación del proyecto
+├── robots.txt               # Reglas de rastreo para bots
+├── api/
+│   ├── proxy.php            # Proxy CORS / fetch remoto
+│   ├── ports.php            # Escaneo de puertos del host objetivo
+│   └── subdomains.php       # Búsqueda de subdominios comunes
+├── assets/
+│   ├── css/
+│   │   └── style.css        # Estilos principales
+│   └── js/
+│       ├── main.js          # Lógica de auditoría principal
+│       └── ui-render.js     # Renderizado de resultados y ventanas
+└── php-portable/            # PHP portable para Windows (opcional)
 ```
-
-### Flujo de Datos en el Cliente
-1. El frontend toma la URL y la envía a través de un proxy CORS seguro y gratuito (AllOrigins).
-2. El script recibe la estructura HTML de la página objetivo y la parsea localmente en el navegador usando la API nativa `DOMParser()`.
-3. Se ejecutan los algoritmos de análisis y se renderiza dinámicamente el panel interactivo de resultados.
 
 ---
 
-## 🚀 Despliegue en GitHub Pages
+## ⚙️ Requisitos
 
-Para subir y hospedar esta herramienta de forma gratuita:
+* PHP 7.4 o superior.
+* Un servidor web o el servidor PHP integrado (`php -S localhost:8000`).
+* Navegador moderno con soporte para `fetch()`, `DOMParser()` y ES modules.
 
-1. Crea un repositorio en tu cuenta de GitHub (ej. `aurascan`).
-2. Sube todos los archivos del proyecto (`index.html`, `assets/`, `robots.txt`, `README.md`) al repositorio.
-3. Ve a la pestaña **Settings** (Configuración) de tu repositorio.
-4. En el menú lateral izquierdo, haz clic en **Pages**.
-5. Bajo **Build and deployment**, selecciona la rama `main` (o `master`) y la carpeta `/ (root)`.
-6. Haz clic en **Save** (Guardar).
-7. En un par de minutos, GitHub te proporcionará el enlace público del sitio (ej. `https://tu-usuario.github.io/aurascan/`).
+> El frontend es estático, pero necesita el backend PHP en `api/` para funcionar correctamente. No es una aplicación completamente estática en entornos sin PHP.
+
+---
+
+## 🚀 Cómo ejecutar localmente
+
+1. Abre una terminal en la raíz del proyecto.
+2. Ejecuta:
+
+```powershell
+php -S localhost:8000
+```
+
+3. Abre `http://localhost:8000` en tu navegador.
+
+### Uso con la carpeta `php-portable`
+
+Si usas Windows y no tienes PHP instalado, puedes ejecutar el servidor portable desde `php-portable`.
+
+---
+
+## 🛠️ Despliegue recomendado
+
+Para un despliegue completo, usa un hosting que soporte PHP, ya que `api/` contiene los endpoints necesarios:
+
+* `api/proxy.php` — obtención del HTML remoto.
+* `api/subdomains.php` — escaneo de subdominios.
+* `api/ports.php` — escaneo de puertos.
+
+Si deseas mantenerlo local, basta con la carpeta raíz y PHP disponible en el servidor.
+
+---
+
+## 📜 Licencia
+
+Este proyecto se distribuye bajo una licencia personalizada de **Alberto Ortiz (alberto2005-coder)**.
+
+Resumen clave:
+
+* ✅ Uso no comercial permitido.
+* ❌ Prohibido el uso comercial sin autorización escrita.
+* 🔁 Los forks deben mantener atribución visible y las mismas restricciones.
+* 📌 Debe incluirse una copia completa del archivo `LICENSE` en redistribuciones.
+
+Consulta el archivo `LICENSE` para los términos completos.
+
+---
+
+## 💡 Notas importantes
+
+* La auditoría remota depende de la capacidad del objetivo para ser descargado vía HTTP(S).
+* Algunos sitios con protección anti-bots o políticas CORS pueden bloquear el proxy.
+* Los resultados de puertos y subdominios pueden variar según el entorno de red y permisos.
+
+---
+
+## 🤝 Atribución
+
+Basado en el trabajo original de Alberto Ortiz (`alberto2005-coder`).
+
+Mantén esta referencia visible en tu documentación y en cualquier fork o modificación.

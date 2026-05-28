@@ -118,8 +118,8 @@ async function handleAuditSubmit(e) {
     try {
         const startTime = performance.now();
 
-        // Sugerencia: Puedes usar otra alternativa de proxy público si AllOrigins falla
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+        // Usar proxy local PHP para evadir CORS y restricciones
+        const proxyUrl = `api/proxy.php?url=${encodeURIComponent(targetUrl)}`;
 
         const response = await fetch(proxyUrl);
         if (!response.ok) throw new Error('El proxy CORS no responde o rechazó la conexión.');
@@ -649,8 +649,8 @@ async function checkLinksBatch(offset, limit) {
 
     const promises = batch.map(async (linkUrl) => {
         try {
-            // Check status code via a lightweight check (using allorigins JSON endpoint to fetch meta)
-            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(linkUrl)}`;
+            // Check status code via local PHP proxy
+            const proxyUrl = `api/proxy.php?url=${encodeURIComponent(linkUrl)}`;
             const controller = new AbortController();
             const id = setTimeout(() => controller.abort(), 6000);
 

@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -141,17 +142,22 @@
                             <label>Meta Descripción</label>
                             <p id="metaDesc">—</p>
                         </div>
-                        <div class="meta-field" style="margin-top: 0.5rem;">
-                            <label>Enlaces Internos Auditables</label>
-                            <div id="internalLinksList" class="link-scroller-box" style="max-height: 120px; padding: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem;"></div>
-                        </div>
                     </div>
                     <div class="card-actions">
                         <button class="btn btn-secondary btn-full" id="exportPdfBtn">
-                            <i data-lucide="file-text"></i> Exportar Informe
+                            <i data-lucide="file-text"></i> Exportar PDF (Imprimir)
+                        </button>
+                        <button class="btn btn-secondary btn-full" id="exportMdBtn">
+                            <i data-lucide="file-down"></i> Descargar Markdown (.md)
                         </button>
                         <button class="btn btn-secondary btn-full" id="exportJsonBtn">
                             <i data-lucide="download"></i> Descargar JSON
+                        </button>
+                        <button class="btn btn-secondary btn-full" id="exportSitemapBtn">
+                            <i data-lucide="network"></i> Descargar Sitemap (.xml)
+                        </button>
+                        <button class="btn btn-secondary btn-full" id="exportRobotsBtn">
+                            <i data-lucide="bot"></i> Descargar Robots (.txt)
                         </button>
                     </div>
                 </div>
@@ -182,6 +188,11 @@
                         <div class="sub-score-val" id="perfScoreText">0%</div>
                         <div class="sub-score-bar-bg"><div class="sub-score-bar-fill" id="perfScoreBar"></div></div>
                     </div>
+                    <div class="glass-card sub-score-card">
+                        <span class="sub-score-title">Seguridad</span>
+                        <div class="sub-score-val" id="securityScoreText">0%</div>
+                        <div class="sub-score-bar-bg"><div class="sub-score-bar-fill" id="securityScoreBar"></div></div>
+                    </div>
                 </div>
 
                 <!-- Navigation Tabs -->
@@ -206,6 +217,12 @@
                     </button>
                     <button class="tab-btn" data-tab="tab-cwv">
                         <i data-lucide="gauge"></i> Core Web Vitals
+                    </button>
+                    <button class="tab-btn" data-tab="tab-subdomains">
+                        <i data-lucide="network"></i> Subdominios
+                    </button>
+                    <button class="tab-btn" data-tab="tab-ports">
+                        <i data-lucide="terminal"></i> Puertos
                     </button>
                 </div>
 
@@ -382,29 +399,86 @@
                             <p>Calculando Core Web Vitals...</p>
                         </div>
                         <div id="cwvContent" class="hidden">
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
-                                <div class="cwv-card">
-                                    <div class="cwv-metric-title">LCP (Largest Contentful Paint)</div>
-                                    <div class="cwv-metric-val" id="lcpVal">—</div>
-                                    <div class="cwv-metric-desc" id="lcpDesc">Elemento visual más lento</div>
+                            <div class="cwv-metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                                <div class="glass-card cwv-card" style="display: flex; flex-direction: column; gap: 0.75rem; border-top: 4px solid var(--accent-primary);">
+                                    <div class="cwv-header" style="display: flex; justify-content: space-between; align-items: center;">
+                                        <h4 class="cwv-metric-title" style="margin: 0; font-size: 0.88rem; color: var(--text-secondary);">LCP (Largest Contentful Paint)</h4>
+                                        <i data-lucide="image" style="width: 18px; height: 18px; color: var(--accent-primary);"></i>
+                                    </div>
+                                    <div class="cwv-metric-val" id="lcpVal" style="font-size: 1.6rem; font-weight: 800;">—</div>
+                                    <div class="cwv-metric-desc" id="lcpDesc" style="font-size: 0.82rem; color: var(--text-muted);">Elemento visual más lento</div>
                                 </div>
-                                <div class="cwv-card">
-                                    <div class="cwv-metric-title">CLS (Cumulative Layout Shift)</div>
-                                    <div class="cwv-metric-val" id="clsVal">—</div>
-                                    <div class="cwv-metric-desc" id="clsDesc">Imágenes sin dimensiones explícitas</div>
+                                <div class="glass-card cwv-card" style="display: flex; flex-direction: column; gap: 0.75rem; border-top: 4px solid var(--accent-secondary);">
+                                    <div class="cwv-header" style="display: flex; justify-content: space-between; align-items: center;">
+                                        <h4 class="cwv-metric-title" style="margin: 0; font-size: 0.88rem; color: var(--text-secondary);">CLS (Cumulative Layout Shift)</h4>
+                                        <i data-lucide="layout" style="width: 18px; height: 18px; color: var(--accent-secondary);"></i>
+                                    </div>
+                                    <div class="cwv-metric-val" id="clsVal" style="font-size: 1.6rem; font-weight: 800;">—</div>
+                                    <div class="cwv-metric-desc" id="clsDesc" style="font-size: 0.82rem; color: var(--text-muted);">Imágenes sin dimensiones explícitas</div>
                                 </div>
-                                <div class="cwv-card">
-                                    <div class="cwv-metric-title">FID (First Input Delay)</div>
-                                    <div class="cwv-metric-val" id="fidVal">—</div>
-                                    <div class="cwv-metric-desc" id="fidDesc">Scripts bloqueantes en head</div>
+                                <div class="glass-card cwv-card" style="display: flex; flex-direction: column; gap: 0.75rem; border-top: 4px solid var(--warning);">
+                                    <div class="cwv-header" style="display: flex; justify-content: space-between; align-items: center;">
+                                        <h4 class="cwv-metric-title" style="margin: 0; font-size: 0.88rem; color: var(--text-secondary);">FID (First Input Delay)</h4>
+                                        <i data-lucide="timer" style="width: 18px; height: 18px; color: var(--warning);"></i>
+                                    </div>
+                                    <div class="cwv-metric-val" id="fidVal" style="font-size: 1.6rem; font-weight: 800;">—</div>
+                                    <div class="cwv-metric-desc" id="fidDesc" style="font-size: 0.82rem; color: var(--text-muted);">Scripts bloqueantes en head</div>
                                 </div>
                             </div>
 
-                            <div class="glass-card" style="padding: 1.25rem;">
-                                <h4 style="margin-bottom: 0.75rem;"><i data-lucide="smartphone" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 5px;"></i>Optimizaciones Móviles</h4>
-                                <div id="mobileIssuesList"></div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                                <div class="glass-card" style="padding: 1.25rem;">
+                                    <h4 style="margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="smartphone" style="width: 16px; height: 16px; color: var(--accent-secondary);"></i>Optimizaciones Móviles</h4>
+                                    <div id="mobileIssuesList"></div>
+                                </div>
+                                <div class="glass-card" style="padding: 1.25rem;">
+                                    <h4 style="margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="code-2" style="width: 16px; height: 16px; color: var(--accent-primary);"></i>Recursos de Bloqueo de Renderizado</h4>
+                                    <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.6rem;">
+                                        <div style="display: flex; justify-content: space-between;"><span>Scripts Totales:</span> <strong id="totalScriptsCount" style="color: var(--text-primary);">0</strong></div>
+                                        <div style="display: flex; justify-content: space-between;"><span>Hojas de Estilo CSS:</span> <strong id="stylesheetsCount" style="color: var(--text-primary);">0</strong></div>
+                                        <div style="font-weight: 600; margin-top: 0.25rem;">Scripts que bloquean en head:</div>
+                                        <div id="blockingScriptsList" class="link-scroller-box" style="max-height: 120px; padding: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem; font-family: monospace; font-size: 0.76rem; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 6px;"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Tab Pane: Subdomains -->
+                    <div class="tab-pane" id="tab-subdomains">
+                        <div class="tab-header-info">
+                            <h3>Descubrimiento de Subdominios</h3>
+                            <p>Análisis de resolución DNS y disponibilidad de subdominios comunes.</p>
+                        </div>
+                        <div id="subdomainsLoader" class="loader-container hidden">
+                            <div class="loader-card" style="padding: 1.5rem; max-width: 300px; box-shadow: none; border-color: var(--border-color);">
+                                <div class="spinner" style="width: 35px; height: 35px;">
+                                    <div class="double-bounce1"></div>
+                                    <div class="double-bounce2"></div>
+                                </div>
+                                <p style="font-size:0.85rem; margin:0;">Buscando subdominios activos...</p>
+                            </div>
+                        </div>
+                        <div id="subdomainsList" class="link-scroller-box" style="margin-top: 1rem;"></div>
+                    </div>
+
+                    <!-- Tab Pane: Ports -->
+                    <div class="tab-pane" id="tab-ports">
+                        <div class="tab-header-info">
+                            <h3>Escáner de Puertos Abiertos</h3>
+                            <p>Auditoría de seguridad básica escaneando los puertos y servicios más comunes.</p>
+                        </div>
+                        <div id="portsLoader" class="loader-container hidden">
+                            <div class="loader-card" style="padding: 1.5rem; max-width: 300px; box-shadow: none; border-color: var(--border-color);">
+                                <div class="spinner" style="width: 35px; height: 35px;">
+                                    <div class="double-bounce1"></div>
+                                    <div class="double-bounce2"></div>
+                                </div>
+                                <p style="font-size:0.85rem; margin:0;">Escaneando puertos de red...</p>
+                            </div>
+                        </div>
+                        <div id="portsHostInfo" style="font-size:0.88rem; color:var(--text-secondary); margin-top:0.5rem;" class="hidden"></div>
+                        <div id="portsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 1rem; margin-top: 1rem;"></div>
                     </div>
 
                 </div>
@@ -508,6 +582,8 @@
         </div>
     </div>
 
+    <script src="assets/js/audit-engine.js"></script>
+    <script src="assets/js/ui-render.js"></script>
     <script src="assets/js/main.js"></script>
 </body>
 </html>

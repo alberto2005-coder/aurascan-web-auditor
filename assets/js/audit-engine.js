@@ -399,6 +399,54 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
     if (!viewport) mobileIssues.push({ severity: 'critical', message: 'Falta la etiqueta meta viewport.' });
     if (nonSizedImages.length > 5) mobileIssues.push({ severity: 'warning', message: 'Varias imágenes carecen de dimensiones fijas y pueden deformar la visualización.' });
 
+    // Schema JSON-LD structured data extraction
+    const schemaScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+    const schemaDetails = [];
+    schemaScripts.forEach(script => {
+        const content = script.textContent.trim();
+        if (!content) return;
+        try {
+            const parsed = JSON.parse(content);
+            const getTypes = (obj) => {
+                const types = [];
+                if (typeof obj === 'object' && obj !== null) {
+                    if (obj['@type']) {
+                        if (Array.isArray(obj['@type'])) {
+                            types.push(...obj['@type']);
+                        } else {
+                            types.push(obj['@type']);
+                        }
+                    }
+                    if (obj['@graph'] && Array.isArray(obj['@graph'])) {
+                        obj['@graph'].forEach(item => {
+                            types.push(...getTypes(item));
+                        });
+                    }
+                }
+                return types;
+            };
+            const typesFound = getTypes(parsed);
+            if (typesFound.length > 0) {
+                typesFound.forEach(t => {
+                    schemaDetails.push({
+                        type: typeof t === 'string' ? t : JSON.stringify(t),
+                        valid_json: true
+                    });
+                });
+            } else {
+                schemaDetails.push({
+                    type: 'Desconocido',
+                    valid_json: true
+                });
+            }
+        } catch (e) {
+            schemaDetails.push({
+                type: 'Error de Lectura',
+                valid_json: false
+            });
+        }
+    });
+
     // Calculate final scores
     let seoScore = 100 - (seoIssues.filter(i => i.severity === 'critical').length * 15) - (seoIssues.filter(i => i.severity === 'warning').length * 8);
     seoScore = Math.max(10, Math.min(100, seoScore));
@@ -414,8 +462,18 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
 
     const score = Math.round((seoScore * 0.35) + (accessScore * 0.25) + (contentScore * 0.20) + (perfScore * 0.20));
     const allIssues = [...seoIssues, ...headingIssues, ...contentIssues];
+    
+    let faviconUrl = '';
     const faviconElement = doc.querySelector('link[rel*="icon"]');
-    const faviconUrl = faviconElement ? faviconElement.getAttribute('href') : '';
+    if (faviconElement) {
+        faviconUrl = faviconElement.getAttribute('href');
+    } else {
+        try {
+            faviconUrl = new URL('/favicon.ico', url).href;
+        } catch (e) {
+            faviconUrl = '';
+        }
+    }
 
     return {
         url,
@@ -474,6 +532,7 @@ function runClientSideAudit(url, keyword, doc, html, responseTime, sizeKb) {
         tech: {
             technologies,
             third_party: thirdParty,
+            schema_details: schemaDetails,
             cwv,
             mobile: {
                 has_viewport: !!viewport,

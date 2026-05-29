@@ -20,15 +20,7 @@
         <!-- Header -->
         <header class="header">
             <div class="logo">
-                <svg class="logo-icon-svg" viewBox="0 0 24 24">
-                    <defs>
-                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#8b5cf6" />
-                            <stop offset="100%" stop-color="#06b6d4" />
-                        </linearGradient>
-                    </defs>
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="url(#logoGradient)"/>
-                </svg>
+                <img src="assets/favicon.png" alt="Logo" class="logo-img" style="width: 40px; height: 40px;">
                 <div class="logo-text">
                     <h1>Aura<span>Scan</span></h1>
                     <p>Web Auditing Suite</p>

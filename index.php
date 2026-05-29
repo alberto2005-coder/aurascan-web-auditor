@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AuraScan - Analizador Técnico de Sitios Web</title>
     <meta name="description" content="AuraScan es una herramienta premium de auditoría web instantánea y 100% estática. Analice SEO técnico, velocidad, Core Web Vitals, seguridad y enlaces directamente desde su navegador.">
-    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">

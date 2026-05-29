@@ -9,6 +9,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
+// Basic referrer validation to prevent public proxy abuse (allowing same-origin or local requests)
+$allowedOrigins = ['localhost', '127.0.0.1'];
+if (isset($_SERVER['HTTP_REFERER'])) {
+    $refererHost = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST);
+    $serverHost = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+    // Strip port from serverHost if any
+    $serverHostClean = preg_replace('/:[0-9]+$/', '', $serverHost);
+    if ($refererHost && $refererHost !== $serverHostClean && !in_array($refererHost, $allowedOrigins)) {
+        http_response_code(403);
+        echo json_encode(["error" => "Acceso no autorizado: origen no permitido."]);
+        exit;
+    }
+}
+
 $url = isset($_GET['url']) ? trim($_GET['url']) : '';
 
 if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL)) {

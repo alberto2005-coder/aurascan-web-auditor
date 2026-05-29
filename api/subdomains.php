@@ -65,6 +65,11 @@ $uniqueHosts = array_filter($uniqueHosts, function($host) use ($domain) {
     return $host !== $domain;
 });
 
+// Limit to top 30 discovered subdomains to prevent script timeouts
+if (count($uniqueHosts) > 30) {
+    $uniqueHosts = array_slice($uniqueHosts, 0, 30);
+}
+
 $results = [];
 foreach ($uniqueHosts as $targetHost) {
     // Perform fast DNS resolution

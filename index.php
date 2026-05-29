@@ -64,6 +64,13 @@
                         <i data-lucide="arrow-right"></i>
                     </button>
                 </form>
+                <div id="recentAudits" class="recent-audits-container hidden">
+                    <span class="recent-label">Recientes:</span>
+                    <div id="recentAuditsList" class="recent-chips"></div>
+                    <button type="button" id="clearHistoryBtn" class="clear-history-btn" title="Limpiar Historial">
+                        <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                    </button>
+                </div>
             </div>
         </section>
 

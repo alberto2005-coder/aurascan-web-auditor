@@ -121,6 +121,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const exportRobotsBtn = document.getElementById('exportRobotsBtn');
     if (exportRobotsBtn) exportRobotsBtn.addEventListener('click', exportRobots);
+
+    // History initialization
+    renderHistoryList();
+    
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    if (clearHistoryBtn) {
+        clearHistoryBtn.addEventListener('click', () => {
+            localStorage.removeItem('aurascan_audit_history');
+            renderHistoryList();
+        });
+    }
 });
 
 async function handleAuditSubmit(e) {
@@ -189,17 +200,18 @@ async function handleAuditSubmit(e) {
         loaderSub.textContent = "Verificando el estado de servicios del servidor...";
         await startPortsScan();
 
-        // Stage 4: Link Integrity
-        loaderTitle.textContent = "Comprobando enlaces...";
-        loaderSub.textContent = "Verificando el estado de la red e integridad de los enlaces...";
-        await checkLinksBatch(0, 15);
-
         // Hide loader & show results
         loader.classList.add('hidden');
         dashboard.classList.remove('hidden');
 
         // Draw views using ui-render.js
         renderDashboard();
+
+        // Save to localStorage history
+        saveAuditToHistory(auditData);
+
+        // Stage 4: Link Integrity (Ejecutado en segundo plano)
+        checkLinksBatch(0, 15);
 
     } catch (err) {
         console.error(err);
@@ -672,4 +684,79 @@ function exportRobots() {
     dlAnchorElem.setAttribute("href", dataStr);
     dlAnchorElem.setAttribute("download", `robots.txt`);
     dlAnchorElem.click();
+}
+
+const HISTORY_KEY = 'aurascan_audit_history';
+const MAX_HISTORY = 5;
+
+function saveAuditToHistory(data) {
+    try {
+        let history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+        // Remove existing audit for same URL
+        history = history.filter(item => item.url !== data.url);
+        // Prepend new audit
+        history.unshift(data);
+        // Slice to MAX_HISTORY
+        if (history.length > MAX_HISTORY) {
+            history = history.slice(0, MAX_HISTORY);
+        }
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+        renderHistoryList();
+    } catch (e) {
+        console.error("Error saving audit to history:", e);
+    }
+}
+
+function renderHistoryList() {
+    const list = document.getElementById('recentAuditsList');
+    const container = document.getElementById('recentAudits');
+    if (!list || !container) return;
+
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+    if (history.length === 0) {
+        container.classList.add('hidden');
+        list.innerHTML = '';
+        return;
+    }
+
+    container.classList.remove('hidden');
+    list.innerHTML = '';
+
+    history.forEach(item => {
+        let hostname = item.url;
+        try {
+            hostname = new URL(item.url).hostname;
+        } catch(e) {}
+        
+        const score = item.seo_score || 0;
+        let scoreClass = 'critical';
+        if (score >= 90) scoreClass = 'excellent';
+        else if (score >= 80) scoreClass = 'good';
+        else if (score >= 70) scoreClass = 'warning';
+
+        const chip = document.createElement('div');
+        chip.className = 'recent-chip';
+        chip.innerHTML = `
+            <span>${hostname}</span>
+            <span class="score-badge ${scoreClass}">${score}%</span>
+        `;
+        chip.addEventListener('click', () => {
+            auditData = item;
+            const dashboard = document.getElementById('dashboard');
+            const loader = document.getElementById('loader');
+            if (loader) loader.classList.add('hidden');
+            if (dashboard) dashboard.classList.remove('hidden');
+            
+            // Set search input values
+            const urlInput = document.getElementById('targetUrl');
+            if (urlInput) urlInput.value = item.url;
+            const keywordInput = document.getElementById('targetKeyword');
+            if (keywordInput && item.keyword_analysis) {
+                keywordInput.value = item.keyword_analysis.keyword || '';
+            }
+
+            renderDashboard();
+        });
+        list.appendChild(chip);
+    });
 }

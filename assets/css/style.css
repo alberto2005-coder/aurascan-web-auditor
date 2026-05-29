@@ -1436,3 +1436,72 @@ body {
         color: #000000 !important;
     }
 }
+
+/* Recent Audits styles */
+.recent-audits-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-color);
+    flex-wrap: wrap;
+}
+.recent-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.recent-chips {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    flex: 1;
+}
+.recent-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+}
+.recent-chip:hover {
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--text-primary);
+    border-color: var(--accent-primary);
+}
+.recent-chip .score-badge {
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+}
+.recent-chip .score-badge.critical { background: rgba(239, 68, 68, 0.15); color: var(--critical); }
+.recent-chip .score-badge.warning { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+.recent-chip .score-badge.good { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+.recent-chip .score-badge.excellent { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+
+.clear-history-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all var(--transition-fast);
+}
+.clear-history-btn:hover {
+    color: var(--critical);
+    background: rgba(239, 68, 68, 0.1);
+}

@@ -108,3 +108,30 @@ Consulta el archivo `LICENSE` para los términos completos.
 Basado en el trabajo original de Alberto Ortiz (`alberto2005-coder`).
 
 Mantén esta referencia visible en tu documentación y en cualquier fork o modificación.
+
+---
+
+# English Version
+
+## Overview
+
+**AuraScan** is a technical web audit suite that combines a modern client interface with a lightweight PHP backend to perform SEO analysis, security checks, link validation, subdomain scans, and port checks.
+
+## What it does
+
+- SEO audit for HTML structure, metadata, Open Graph tags, and headings
+- Security analysis for HTTP headers and SSL exposure
+- Link and image validation with status checks
+- Common subdomain scanning
+- Basic host port scanning
+- Export to JSON, Markdown, PDF, sitemap, and robots.txt
+
+## Run locally
+
+```bash
+php -S localhost:8000
+```
+
+Then visit `http://localhost:8000` in your browser.
+
+This bilingual README keeps the original Spanish version first and adds the English overview below for accessibility.

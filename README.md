@@ -23,7 +23,7 @@
 
 ```text
 ├── index.php                 # Punto de entrada del frontend
-├── LICENSE                  # Licencia personalizada del proyecto
+├── LICENSE                  # Licencia GPL-3.0 del proyecto
 ├── README.md                # Documentación del proyecto
 ├── robots.txt               # Reglas de rastreo para bots
 ├── api/
@@ -82,13 +82,13 @@ Si deseas mantenerlo local, basta con la carpeta raíz y PHP disponible en el se
 
 ## 📜 Licencia
 
-Este proyecto se distribuye bajo una licencia personalizada de **Alberto Ortiz (alberto2005-coder)**.
+Este proyecto se distribuye bajo la **Licencia GPL-3.0** de [GNU](https://www.gnu.org/licenses/gpl-3.0.html).
 
 Resumen clave:
 
-* ✅ Uso no comercial permitido.
-* ❌ Prohibido el uso comercial sin autorización escrita.
-* 🔁 Los forks deben mantener atribución visible y las mismas restricciones.
+* ✅ Uso libre, incluso con fines comerciales.
+* 🔁 Puedes modificarlo y crear forks.
+* ⚠️ Si distribuyes copias o versiones modificadas, publica su código fuente bajo la misma licencia (copyleft).
 * 📌 Debe incluirse una copia completa del archivo `LICENSE` en redistribuciones.
 
 Consulta el archivo `LICENSE` para los términos completos.

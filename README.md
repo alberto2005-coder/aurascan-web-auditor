@@ -1,137 +1,171 @@
-# 🚀 AuraScan: Web Audit Engine
-**AuraScan** es una suite de auditoría técnica web que combina una interfaz de cliente moderna con una pequeña API backend en PHP para permitir análisis SEO, seguridad, enlaces, subdominios y puertos.
+# AuraScan — auditoría web
 
-> Esta aplicación usa HTML/CSS/JS en el frontend y requiere el backend PHP disponible en `api/` para la extracción de contenido remoto y los escaneos de red.
+[![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/docs/Web/JavaScript)
+[![GPL-3.0](https://img.shields.io/badge/Licencia-GPL--3.0-blue)](LICENSE)
 
----
-
-## 📌 Qué hace AuraScan
-
-* Auditoría SEO técnica de páginas web.
-* Revisión de encabezados (`H1`-`H6`), metadatos y etiquetas Open Graph.
-* Análisis heurístico de Core Web Vitals y rendimiento percibido.
-* Inspección de seguridad HTTP y soporte SSL.
-* Detección de tecnologías visibles en la página.
-* Verificación de enlaces e imágenes con comprobación de estado.
-* Escaneo de subdominios comunes con verificación de respuesta.
-* Escaneo de puertos básicos del host objetivo.
-* Exportación de resultados a JSON, Markdown, PDF, sitemap y robots.txt.
+[Español](#español) · [English](#english)
 
 ---
 
-## 📂 Estructura del proyecto
+## Español
+
+### Índice
+
+- [Descripción](#descripción)
+- [Qué analiza](#qué-analiza)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Requisitos](#requisitos)
+- [Ejecución local](#ejecución-local)
+- [Despliegue](#despliegue)
+- [Limitaciones y uso responsable](#limitaciones-y-uso-responsable)
+- [Licencia](#licencia)
+
+### Descripción
+
+**AuraScan** es una suite de auditoría técnica web: una interfaz estática en HTML, CSS y JavaScript acompañada de un pequeño backend en **PHP** que hace de proxy para descargar el HTML remoto y ejecutar los escaneos de red.
+
+### Qué analiza
+
+- **SEO técnico**: títulos, metadatos, `robots.txt`, canonical, `hreflang` y jerarquía de encabezados `H1`–`H6`.
+- **Open Graph y Twitter Cards**: cómo se verá la página al compartirla.
+- **Rendimiento**: heurísticas de Core Web Vitals, peso del HTML y compresión.
+- **Seguridad HTTP**: HSTS, CSP, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` y contenido mixto.
+- **Tecnologías visibles** en la página (CMS, analítica, frameworks).
+- **Enlaces e imágenes**: comprobación de estado de cada recurso.
+- **Subdominios comunes** con verificación de respuesta.
+- **Puertos básicos** del host objetivo.
+- **Exportación**: JSON, Markdown, PDF, `sitemap.xml` y `robots.txt`.
+
+### Estructura del proyecto
 
 ```text
-├── index.php                 # Punto de entrada del frontend
-├── LICENSE                  # Licencia GPL-3.0 del proyecto
-├── README.md                # Documentación del proyecto
-├── robots.txt               # Reglas de rastreo para bots
+aurascan-web-auditor/
+├── index.php              # Punto de entrada del frontend
 ├── api/
-│   ├── proxy.php            # Proxy CORS / fetch remoto
-│   ├── ports.php            # Escaneo de puertos del host objetivo
-│   └── subdomains.php       # Búsqueda de subdominios comunes
+│   ├── proxy.php          # Proxy CORS y descarga remota
+│   ├── ports.php          # Escaneo de puertos
+│   └── subdomains.php     # Escaneo de subdominios
 ├── assets/
-│   ├── css/
-│   │   └── style.css        # Estilos principales
+│   ├── css/style.css
 │   └── js/
-│       ├── main.js          # Lógica de auditoría principal
-│       └── ui-render.js     # Renderizado de resultados y ventanas
-└── php-portable/            # PHP portable para Windows (opcional)
+│       ├── audit-engine.js # Motor de auditoría
+│       ├── main.js         # Orquestación de la interfaz
+│       └── ui-render.js    # Renderizado de resultados
+├── php-portable/          # PHP portable para Windows (opcional)
+├── robots.txt
+├── LICENSE
+└── README.md
 ```
 
----
+### Requisitos
 
-## ⚙️ Requisitos
+- **PHP 7.4 o superior**.
+- Un servidor web (Apache, Nginx o el servidor integrado de PHP).
+- Navegador moderno con `fetch()`, `DOMParser()` y módulos ES.
 
-* PHP 7.4 o superior.
-* Un servidor web o el servidor PHP integrado (`php -S localhost:8000`).
-* Navegador moderno con soporte para `fetch()`, `DOMParser()` y ES modules.
+El frontend es estático, pero **necesita el backend PHP** de `api/`: sin él no puede descargar la página remota ni escanear red.
 
-> El frontend es estático, pero necesita el backend PHP en `api/` para funcionar correctamente. No es una aplicación completamente estática en entornos sin PHP.
-
----
-
-## 🚀 Cómo ejecutar localmente
-
-1. Abre una terminal en la raíz del proyecto.
-2. Ejecuta:
-
-```powershell
-php -S localhost:8000
-```
-
-3. Abre `http://localhost:8000` en tu navegador.
-
-### Uso con la carpeta `php-portable`
-
-Si usas Windows y no tienes PHP instalado, puedes ejecutar el servidor portable desde `php-portable`.
-
----
-
-## 🛠️ Despliegue recomendado
-
-Para un despliegue completo, usa un hosting que soporte PHP, ya que `api/` contiene los endpoints necesarios:
-
-* `api/proxy.php` — obtención del HTML remoto.
-* `api/subdomains.php` — escaneo de subdominios.
-* `api/ports.php` — escaneo de puertos.
-
-Si deseas mantenerlo local, basta con la carpeta raíz y PHP disponible en el servidor.
-
----
-
-## 📜 Licencia
-
-Este proyecto se distribuye bajo la **Licencia GPL-3.0** de [GNU](https://www.gnu.org/licenses/gpl-3.0.html).
-
-Resumen clave:
-
-* ✅ Uso libre, incluso con fines comerciales.
-* 🔁 Puedes modificarlo y crear forks.
-* ⚠️ Si distribuyes copias o versiones modificadas, publica su código fuente bajo la misma licencia (copyleft).
-* 📌 Debe incluirse una copia completa del archivo `LICENSE` en redistribuciones.
-
-Consulta el archivo `LICENSE` para los términos completos.
-
----
-
-## 💡 Notas importantes
-
-* La auditoría remota depende de la capacidad del objetivo para ser descargado vía HTTP(S).
-* Algunos sitios con protección anti-bots o políticas CORS pueden bloquear el proxy.
-* Los resultados de puertos y subdominios pueden variar según el entorno de red y permisos.
-
----
-
-## 🤝 Atribución
-
-Basado en el trabajo original de Alberto Ortiz (`alberto2005-coder`).
-
-Mantén esta referencia visible en tu documentación y en cualquier fork o modificación.
-
----
-
-# English Version
-
-## Overview
-
-**AuraScan** is a technical web audit suite that combines a modern client interface with a lightweight PHP backend to perform SEO analysis, security checks, link validation, subdomain scans, and port checks.
-
-## What it does
-
-- SEO audit for HTML structure, metadata, Open Graph tags, and headings
-- Security analysis for HTTP headers and SSL exposure
-- Link and image validation with status checks
-- Common subdomain scanning
-- Basic host port scanning
-- Export to JSON, Markdown, PDF, sitemap, and robots.txt
-
-## Run locally
+### Ejecución local
 
 ```bash
 php -S localhost:8000
 ```
 
-Then visit `http://localhost:8000` in your browser.
+Abre <http://localhost:8000>. En Windows sin PHP instalado puedes usar la carpeta `php-portable/`.
 
-This bilingual README keeps the original Spanish version first and adds the English overview below for accessibility.
+### Despliegue
+
+Sube el proyecto a un hosting con **PHP** y HTTPS. Los tres endpoints de `api/` deben poder hacer peticiones salientes; si el hosting las bloquea, la auditoría remota fallará. Activa `mod_rewrite` si usas Apache (el `.htaccess` ya está incluido).
+
+### Limitaciones y uso responsable
+
+- Algunos sitios bloquean el proxy por CORS, *rate limiting* o protección anti-bot.
+- Los resultados de puertos y subdominios dependen de la red y de los permisos del servidor.
+- Escanea **solo** dominios propios o para los que tengas autorización expresa. El escaneo de puertos y subdominios de terceros sin permiso puede ser ilegal según el país.
+
+### Licencia
+
+**GNU General Public License v3.0 (GPL-3.0)** — consulta [LICENSE](LICENSE).
+
+---
+
+## English
+
+### Table of contents
+
+- [Overview](#overview)
+- [What it analyses](#what-it-analyses)
+- [Project structure](#project-structure)
+- [Requirements](#requirements)
+- [Running locally](#running-locally)
+- [Deployment](#deployment)
+- [Limitations and responsible use](#limitations-and-responsible-use)
+- [License](#license)
+
+### Overview
+
+**AuraScan** is a technical web audit suite: a static HTML, CSS and JavaScript frontend backed by a small **PHP** service that proxies the remote HTML download and runs the network scans.
+
+### What it analyses
+
+- **Technical SEO**: titles, metadata, `robots.txt`, canonical, `hreflang` and the `H1`–`H6` hierarchy.
+- **Open Graph and Twitter Cards**: how the page looks when shared.
+- **Performance**: Core Web Vitals heuristics, HTML weight and compression.
+- **HTTP security**: HSTS, CSP, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` and mixed content.
+- **Visible technologies**: CMS, analytics and frameworks.
+- **Links and images**: status checks for every resource.
+- **Common subdomains** with response verification.
+- **Basic ports** on the target host.
+- **Exports**: JSON, Markdown, PDF, `sitemap.xml` and `robots.txt`.
+
+### Project structure
+
+```text
+aurascan-web-auditor/
+├── index.php              # Frontend entry point
+├── api/
+│   ├── proxy.php          # CORS proxy and remote fetch
+│   ├── ports.php          # Port scanning
+│   └── subdomains.php     # Subdomain scanning
+├── assets/
+│   ├── css/style.css
+│   └── js/
+│       ├── audit-engine.js # Audit engine
+│       ├── main.js         # UI orchestration
+│       └── ui-render.js    # Result rendering
+├── php-portable/          # Portable PHP for Windows (optional)
+├── robots.txt
+├── LICENSE
+└── README.md
+```
+
+### Requirements
+
+- **PHP 7.4 or later**.
+- A web server (Apache, Nginx or PHP's built-in server).
+- A modern browser with `fetch()`, `DOMParser()` and ES modules.
+
+The frontend is static but **requires the PHP backend** under `api/`: without it, it cannot download the remote page or scan the network.
+
+### Running locally
+
+```bash
+php -S localhost:8000
+```
+
+Open <http://localhost:8000>. On Windows without PHP installed you can use the `php-portable/` folder.
+
+### Deployment
+
+Deploy to a host with **PHP** and HTTPS. The three `api/` endpoints must be allowed to make outbound requests; if the host blocks them, remote audits will fail. Enable `mod_rewrite` on Apache (the `.htaccess` is already included).
+
+### Limitations and responsible use
+
+- Some sites block the proxy through CORS, rate limiting or anti-bot protection.
+- Port and subdomain results depend on the network and server permissions.
+- Scan **only** domains you own or have explicit permission to test. Port and subdomain scanning of third parties without authorisation may be illegal in your country.
+
+### License
+
+**GNU General Public License v3.0 (GPL-3.0)** — see [LICENSE](LICENSE).
